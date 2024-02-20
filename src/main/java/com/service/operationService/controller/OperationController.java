@@ -52,4 +52,18 @@ public class OperationController {
         List<OperationEntity> operations = operationService.getOperationsByMerchantId(merchantId);
         return new ResponseEntity<>(operations, HttpStatus.OK);
     }
+
+    @GetMapping("/getByMerchantIdToday")
+    @ResponseBody
+    public ResponseEntity<List<OperationEntity>> getTodayOperationsByMerchant(@RequestParam(name = "merchantId") Long merchantId) {
+        List<OperationEntity> operations = operationService.getTodayOperationsByMerchantId(merchantId);
+        return new ResponseEntity<>(operations, HttpStatus.OK);
+    }
+
+    @GetMapping("/getByTerminalIdToday")
+    @ResponseBody
+    public ResponseEntity<List<OperationEntity>> getTodayOperationsByTerminal(@RequestParam(name = "terminalId") Long terminalId) {
+        List<OperationEntity> operations = operationService.getTodayOperationsByTerminalId(terminalId);
+        return new ResponseEntity<>(operations, HttpStatus.OK);
+    }
 }

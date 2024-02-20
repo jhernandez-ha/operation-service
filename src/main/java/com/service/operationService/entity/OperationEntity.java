@@ -22,6 +22,10 @@ public class OperationEntity {
 
     private Double quantity;
 
+    private Long cardNumber;
+
+    private String ctasconC;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;

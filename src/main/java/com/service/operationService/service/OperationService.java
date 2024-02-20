@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OperationService {
@@ -22,6 +23,9 @@ public class OperationService {
 
     @Autowired
     private MerchantRepository merchantRepository;
+
+    @Autowired
+    private TerminalRepository terminalRepository;
 
 
     public OperationEntity createOperation(OperationEntity operation, Long merchantId, Long terminalId) {
@@ -59,5 +63,37 @@ public class OperationService {
         Date endDate = Date.from(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         return operationRepository.findByDateBetween(startDate, endDate);
+    }
+
+    public List<OperationEntity> getTodayOperationsByMerchantId(Long merchantId) {
+        MerchantEntity merchant = merchantRepository.findById(merchantId)
+                .orElseThrow(() -> new IllegalArgumentException("Merchant with id " + merchantId + " not found"));
+
+        LocalDate today = LocalDate.now();
+        Date startDate = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        return merchant.getOperations().stream()
+                .filter(operation -> isOperationWithinDateRange(operation, startDate, endDate))
+                .collect(Collectors.toList());
+    }
+
+    public List<OperationEntity> getTodayOperationsByTerminalId(Long terminalId) {
+        TerminalEntity terminal = terminalRepository.findById(terminalId)
+                .orElseThrow(() -> new IllegalArgumentException("Terminal with id " + terminalId + " not found"));
+
+        LocalDate today = LocalDate.now();
+        Date startDate = Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date endDate = Date.from(today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        return terminal.getOperations().stream()
+                .filter(operation -> isOperationWithinDateRange(operation, startDate, endDate))
+                .collect(Collectors.toList());
+    }
+
+    private boolean isOperationWithinDateRange(OperationEntity operation, Date startDate, Date endDate) {
+        Date operationDate = operation.getDate();
+
+        return operationDate != null && operationDate.after(startDate) && operationDate.before(endDate);
     }
 }
